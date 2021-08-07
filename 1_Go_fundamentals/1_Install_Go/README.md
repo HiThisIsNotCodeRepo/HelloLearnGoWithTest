@@ -15,9 +15,10 @@ Run `go mod init <modulepath>` in project root directory.
 
 ## Go Linting
 
-Using [GolangCI-Lint](https://github.com/golangci/golangci-lint) to identify code error.
+Using [GolangCI-Lint](https://github.com/golangci/golangci-lint) to review your code and provide some suggestion.
 
 ![](https://i.imgur.com/j0EUeVU.png)
 
 ## More complete list of third party products
+
 https://awesome-go.com/
