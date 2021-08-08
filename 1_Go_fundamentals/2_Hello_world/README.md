@@ -75,4 +75,21 @@ func TestHello(t *testing.T) {
 4. Import `"testing"` package.
 
 ## Placeholder strings
+
 [Placeholder strings reference](https://pkg.go.dev/fmt#hdr-Printing)
+
+## Refactoring code
+
+1. Add constant to boost performance because it saves creating "Hello, " every time `Hello` is called.
+
+```
+package hello
+
+const englishHelloPrefix = "Hello, "
+
+// Hello is the data exists in domain
+func Hello(name string) string {
+	return englishHelloPrefix + name
+}
+
+```
