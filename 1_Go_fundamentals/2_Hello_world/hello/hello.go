@@ -4,5 +4,8 @@ const englishHelloPrefix = "Hello, "
 
 // Hello is the data exists in domain
 func Hello(name string) string {
+	if name == "" {
+		name = "World"
+	}
 	return englishHelloPrefix + name
 }
