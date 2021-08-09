@@ -19,7 +19,7 @@ Array length is part of their property. If pass an `[4]int` into function expect
 
 Slices do not encode size and it can have any size.
 
-## How to conduct converage test
+## How to conduct converge test
 
 `go test -conver`
 
