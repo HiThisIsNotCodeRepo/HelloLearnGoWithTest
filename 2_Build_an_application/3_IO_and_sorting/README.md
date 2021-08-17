@@ -1,6 +1,6 @@
 # IO and sorting
 
-## Thread safe implementation
+## Thread safe naive implementation
 
 ```
 package main
@@ -21,8 +21,8 @@ func (f *FileSystemPlayerStore) GetLeague() League {
 	if !f.lock {
 		f.mu.Lock()
 		defer func() {
-			f.mu.Unlock()
 			f.lock = false
+			f.mu.Unlock()
 		}()
 	}
 

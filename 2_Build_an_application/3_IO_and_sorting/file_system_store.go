@@ -16,8 +16,8 @@ func (f *FileSystemPlayerStore) GetLeague() League {
 	if !f.lock {
 		f.mu.Lock()
 		defer func() {
-			f.mu.Unlock()
 			f.lock = false
+			f.mu.Unlock()
 		}()
 	}
 
