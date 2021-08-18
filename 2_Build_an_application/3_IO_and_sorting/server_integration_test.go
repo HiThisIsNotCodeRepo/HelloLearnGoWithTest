@@ -9,9 +9,10 @@ import (
 )
 
 func TestRecordingWinsAndRetrievingThem(t *testing.T) {
-	database, cleanDatabase := createTempFile(t, "")
+	database, cleanDatabase := createTempFile(t, "[]")
 	defer cleanDatabase()
-	store := &FileSystemPlayerStore{database: database}
+	store, err := NewFileSystemPlayerStore(database)
+	assertNoError(t, err)
 	server := NewPlayerServer(store)
 	player := "Pepper"
 	var wg sync.WaitGroup

@@ -2,16 +2,33 @@ package main
 
 import (
 	"encoding/json"
-	"io"
+	"fmt"
+	"os"
+	"sort"
 	"sync"
 )
 
 type FileSystemPlayerStore struct {
 	mu       sync.Mutex
 	lock     bool
-	database io.ReadWriteSeeker
+	database *json.Encoder
+	league   League
 }
 
+func NewFileSystemPlayerStore(file *os.File) (*FileSystemPlayerStore, error) {
+	err := initialisePlayerDBFile(file)
+	if err != nil {
+		return nil, fmt.Errorf("problem initialising player db file,%v", err)
+	}
+	league, err := NewLeague(file)
+	if err != nil {
+		return nil, fmt.Errorf("problem loading player store from file %s, %v", file.Name(), err)
+	}
+	return &FileSystemPlayerStore{
+		database: json.NewEncoder(&tape{file}),
+		league:   league,
+	}, nil
+}
 func (f *FileSystemPlayerStore) GetLeague() League {
 	if !f.lock {
 		f.mu.Lock()
@@ -20,10 +37,10 @@ func (f *FileSystemPlayerStore) GetLeague() League {
 			f.mu.Unlock()
 		}()
 	}
-
-	f.database.Seek(0, 0)
-	league, _ := NewLeague(f.database)
-	return league
+	sort.Slice(f.league, func(i, j int) bool {
+		return f.league[i].Wins > f.league[j].Wins
+	})
+	return f.league
 }
 
 func (f *FileSystemPlayerStore) GetPlayerScore(name string) int {
@@ -48,13 +65,26 @@ func (f *FileSystemPlayerStore) RecordWin(name string) {
 		f.lock = false
 		f.mu.Unlock()
 	}()
-	league := f.GetLeague()
-	player := league.Find(name)
+	player := f.league.Find(name)
 	if player != nil {
 		player.Wins++
 	} else {
-		league = append(league, Player{name, 1})
+		f.league = append(f.league, Player{name, 1})
 	}
-	f.database.Seek(0, 0)
-	json.NewEncoder(f.database).Encode(league)
+	f.database.Encode(f.league)
+}
+
+func initialisePlayerDBFile(file *os.File) error {
+	file.Seek(0, 0)
+	info, err := file.Stat()
+
+	if err != nil {
+		return fmt.Errorf("problem getting file info from file %s,%v", file.Name(), err)
+	}
+
+	if info.Size() == 0 {
+		file.Write([]byte("[]"))
+		file.Seek(0, 0)
+	}
+	return nil
 }
